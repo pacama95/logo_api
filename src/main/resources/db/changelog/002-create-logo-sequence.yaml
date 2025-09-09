@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-logo-sequence
+      author: system
+      comment: Create sequence for logo table ID generation compatible with Hibernate
+      changes:
+        - sql:
+            sql: |
+              CREATE SEQUENCE IF NOT EXISTS logo_seq START 1 INCREMENT 1;
+              SELECT setval('logo_seq', COALESCE(MAX(id), 1)) FROM logo;
