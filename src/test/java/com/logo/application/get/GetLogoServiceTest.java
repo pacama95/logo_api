@@ -1,5 +1,6 @@
 package com.logo.application.get;
 
+import com.logo.domain.model.Errors;
 import com.logo.domain.model.Logo;
 import com.logo.domain.port.incoming.GetLogoUseCase;
 import com.logo.domain.port.outgoing.LogoApiPort;
@@ -93,7 +94,7 @@ class GetLogoServiceTest {
         // Then
         assertThat(result).isInstanceOf(GetLogoUseCase.Result.Error.class);
         GetLogoUseCase.Result.Error error = (GetLogoUseCase.Result.Error) result;
-        assertThat(error.code()).isEqualTo(500);
+        assertThat(error.errors()).isEqualTo(Errors.EXTERNAL_SERVICE_ERROR);
     }
 
     @Test
@@ -110,6 +111,6 @@ class GetLogoServiceTest {
         // Then
         assertThat(result).isInstanceOf(GetLogoUseCase.Result.Error.class);
         GetLogoUseCase.Result.Error error = (GetLogoUseCase.Result.Error) result;
-        assertThat(error.code()).isEqualTo(500);
+        assertThat(error.errors()).isEqualTo(Errors.EXTERNAL_SERVICE_ERROR);
     }
 }

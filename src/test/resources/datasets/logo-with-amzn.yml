@@ -1,0 +1,9 @@
+logo:
+  - id: 1
+    external_identifier: "AMZN"
+    resource_url: "https://img.logo.dev/ticker/AMZN"
+    file_content: !!binary "dGVzdC1sb2dvLWRhdGE="  # base64 encoded "test-logo-data"
+    file_name: "AMZN.jpeg"
+    content_type: "image/jpeg"
+    created_at: "2024-01-01T10:00:00+00:00"
+    updated_at: "2024-01-01T10:00:00+00:00"

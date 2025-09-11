@@ -1,0 +1,6 @@
+logo:
+  - external_identifier: "TSLA"
+    resource_url: "https://img.logo.dev/ticker/TSLA"
+    file_content: !!binary "dGVzdC10c2xhLWxvZ28tZGF0YQ=="  # base64 encoded "test-tsla-logo-data"
+    file_name: "TSLA.png"
+    content_type: "image/png"

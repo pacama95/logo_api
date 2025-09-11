@@ -1,5 +1,6 @@
 package com.logo.application.create;
 
+import com.logo.domain.model.Errors;
 import com.logo.domain.model.Logo;
 import com.logo.domain.port.incoming.CreateLogoCommand;
 import com.logo.domain.port.incoming.CreateLogoUseCase;
@@ -85,6 +86,6 @@ class CreateLogoServiceTest {
         // Then
         assertThat(result).isInstanceOf(CreateLogoUseCase.Result.Error.class);
         CreateLogoUseCase.Result.Error error = (CreateLogoUseCase.Result.Error) result;
-        assertThat(error.code()).isEqualTo(500);
+        assertThat(error.error()).isEqualTo(Errors.EXTERNAL_SERVICE_ERROR);
     }
 }

@@ -1,5 +1,6 @@
 package com.logo.application.create;
 
+import com.logo.domain.model.Errors;
 import com.logo.domain.model.Logo;
 import com.logo.domain.port.incoming.CreateLogoCommand;
 import com.logo.domain.port.incoming.CreateLogoUseCase;
@@ -50,6 +51,6 @@ public class CreateLogoService implements CreateLogoUseCase {
     }
 
     private static CreateLogoUseCase.Result Error() {
-        return new Result.Error(500);
+        return new Result.Error(Errors.EXTERNAL_SERVICE_ERROR);
     }
 }

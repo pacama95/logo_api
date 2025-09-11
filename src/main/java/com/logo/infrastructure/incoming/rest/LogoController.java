@@ -36,8 +36,8 @@ public class LogoController {
                     case CreateLogoUseCase.Result.Success(var logo) ->
                             Uni.createFrom().item(() -> logoDtoMapper.toResponse(logo))
                                     .map(response -> Response.status(201).entity(response).build());
-                    case CreateLogoUseCase.Result.Error(var code) ->
-                            Uni.createFrom().item(() -> Response.status(code).build());
+                    case CreateLogoUseCase.Result.Error(var error) ->
+                            Uni.createFrom().item(() -> Response.status(ErrorCodeMapper.toHttpStatus(error)).build());
                 });
     }
 
@@ -53,8 +53,8 @@ public class LogoController {
                                     .header("Content-Disposition", "inline; filename=\"" + logo.fileName() + "\"")
                                     .build());
                     case GetLogoUseCase.Result.NotFound() -> Uni.createFrom().item(() -> Response.status(404).build());
-                    case GetLogoUseCase.Result.Error(var code) ->
-                            Uni.createFrom().item(() -> Response.status(code).build());
+                    case GetLogoUseCase.Result.Error(var error) ->
+                            Uni.createFrom().item(() -> Response.status(ErrorCodeMapper.toHttpStatus(error)).build());
                 });
     }
 }

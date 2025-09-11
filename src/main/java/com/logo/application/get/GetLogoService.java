@@ -1,5 +1,7 @@
 package com.logo.application.get;
 
+import com.logo.domain.exception.ServiceException;
+import com.logo.domain.model.Errors;
 import com.logo.domain.model.Logo;
 import com.logo.domain.port.incoming.GetLogoUseCase;
 import com.logo.domain.port.outgoing.LogoApiPort;
@@ -37,8 +39,13 @@ public class GetLogoService implements GetLogoUseCase {
                     }
                 })
                 .onFailure().recoverWithItem(throwable -> {
+                    if(throwable instanceof ServiceException serviceException) {
+                        LOG.warn("Service error retrieving logo: %s".formatted(serviceException.getError()));
+                        return new GetLogoUseCase.Result.Error(serviceException.getError());
+                    }
                     // Log error and return appropriate error code
-                    return new GetLogoUseCase.Result.Error(500);
+                    LOG.error("Unexpected error retrieving logo", throwable);
+                    return new GetLogoUseCase.Result.Error(Errors.EXTERNAL_SERVICE_ERROR);
                 });
     }
 
