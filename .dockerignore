@@ -23,7 +23,7 @@ README.md
 docs/
 
 # Docker files
-Dockerfile
+Dockerfile.jvm
 docker-compose.yml
 .dockerignore
 

@@ -2,13 +2,10 @@ package com.logo.infrastructure.incoming.rest.mapper;
 
 import com.logo.domain.model.Logo;
 import com.logo.domain.port.incoming.CreateLogoCommand;
-import com.logo.infrastructure.incoming.rest.CreateLogoRequest;
-import com.logo.infrastructure.incoming.rest.LogoResponse;
-import io.quarkus.test.junit.QuarkusTest;
+import com.logo.infrastructure.incoming.rest.request.CreateLogoRequest;
+import com.logo.infrastructure.incoming.rest.response.LogoResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import jakarta.inject.Inject;
 import org.mapstruct.factory.Mappers;
 
 import java.time.OffsetDateTime;
@@ -26,8 +23,14 @@ class LogoDtoMapperTest {
     @BeforeEach
     void setUp() {
         testTime = OffsetDateTime.now();
-        
-        createLogoRequest = new CreateLogoRequest("AMZN");
+
+        createLogoRequest = new CreateLogoRequest(
+                "AMZN",
+                "https://img.logo.dev/ticker/AMZN",
+                "logo-data".getBytes(),
+                "AMZN.jpeg",
+                "image/jpeg"
+        );
 
         domainLogo = new Logo(
                 "AMZN",
@@ -47,7 +50,7 @@ class LogoDtoMapperTest {
 
         // Then
         assertThat(result).isNotNull();
-        assertThat(result.ticker()).isEqualTo(createLogoRequest.ticker());
+        assertThat(result.externalIdentifier()).isEqualTo(createLogoRequest.externalIdentifier());
     }
 
     @Test

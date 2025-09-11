@@ -24,7 +24,7 @@ public class LogoPersistenceAdapter implements LogoPersistencePort {
     @WithTransaction
     public Uni<Logo> save(Logo logo) {
         return Uni.createFrom().item(() -> logoEntityMapper.toEntity(logo))
-                .flatMap(logoEntity -> logoRepository.persistAndFlush(logoEntity))
+                .flatMap(logoRepository::persistAndFlush)
                 .map(logoEntityMapper::toDomain);
     }
 

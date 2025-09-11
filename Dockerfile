@@ -1,11 +1,11 @@
 ####
-# This Dockerfile is used to build a runnable image of the logo_api application.
+# This Dockerfile is used to build a native runnable image of the logo_api application.
 # Build stage
 ####
-FROM gradle:8.10-jdk21 AS build
+FROM quay.io/quarkus/ubi-quarkus-graalvmce-builder-image:jdk-21 AS build
 
-# Set the working directory
-WORKDIR /app
+# Set working directory
+WORKDIR /code
 
 # Copy gradle files
 COPY gradle/ gradle/
@@ -17,35 +17,31 @@ RUN ./gradlew dependencies --no-daemon
 # Copy source code
 COPY src/ src/
 
-# Build the application
-RUN ./gradlew build -x test --no-daemon
+# Build the native executable
+RUN ./gradlew build -Dquarkus.package.type=native -Dquarkus.native.container-build=false --no-daemon
 
-####
-# Runtime stage
-####
-FROM registry.access.redhat.com/ubi8/openjdk-21-runtime:1.18
+# Runtime stage - minimal image
+FROM registry.access.redhat.com/ubi9/ubi-minimal:9.6
 
-ENV LANGUAGE='en_US:en'
+# Create application directory
+WORKDIR /app
 
-# We make four distinct layers so if there are application changes the library layers can be re-used
-COPY --from=build --chown=185 /app/build/quarkus-app/lib/ /deployments/lib/
-COPY --from=build --chown=185 /app/build/quarkus-app/*.jar /deployments/
-COPY --from=build --chown=185 /app/build/quarkus-app/app/ /deployments/app/
-COPY --from=build --chown=185 /app/build/quarkus-app/quarkus/ /deployments/quarkus/
+# Copy the native executable from build stage
+COPY --from=build --chown=1001:root /code/build/*-runner ./application
 
-EXPOSE 8082
-USER 185
+# Set proper permissions
+RUN chmod +x ./application && \
+    chown 1001:root ./application
 
-# Set production profile
-ENV QUARKUS_PROFILE=prod
+# Switch to non-root user
+USER 1001
 
-# Default environment variables (can be overridden by docker-compose or runtime)
-ENV PGHOST=localhost
-ENV PGPORT=5432
-ENV PGDATABASE=logo_db
-ENV DATABASE_USERNAME=logo_user
-ENV DATABASE_PASSWORD=logo_password
-ENV DEV_SERVICES_ENABLED=false
-ENV PORT=8082
+# Expose port (Railway will set the PORT environment variable)
+EXPOSE $PORT
 
-ENTRYPOINT ["java", "-jar", "/deployments/quarkus-run.jar"]
+# Health check for Railway
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD curl -f http://localhost:${PORT:-8080}/q/health || exit 1
+
+# Start the application
+CMD ["sh", "-c", "./application -Dquarkus.http.host=0.0.0.0 -Dquarkus.http.port=${PORT:-8080}"]

@@ -176,6 +176,128 @@ docker-compose logs logo-api-app
 docker-compose build --no-cache logo-api-app
 ```
 
+## Standalone Docker Images
+
+This project includes two main Dockerfiles for building standalone images that can run independently of docker-compose:
+
+### Native Docker Image (Dockerfile)
+
+The native image provides the fastest startup and lowest memory footprint using GraalVM native compilation.
+
+#### Build the Native Image
+```bash
+# Build the native executable first
+./gradlew build -Dquarkus.package.type=native
+
+# Build the Docker image
+docker build -f Dockerfile -t logo-api:native .
+```
+
+#### Run the Native Image
+```bash
+# Connect to external database (e.g., running via docker-compose)
+docker run --rm -p 8086:8080 \
+  -e PGHOST=host.docker.internal \
+  -e PGPORT=5433 \
+  -e PGDATABASE=logo_db \
+  -e DATABASE_USERNAME=logo_user \
+  -e DATABASE_PASSWORD=logo_password \
+  logo-api:native
+
+# Or connect to a remote database
+docker run --rm -p 8086:8080 \
+  -e PGHOST=your-db-host.com \
+  -e PGPORT=5432 \
+  -e PGDATABASE=logo_db \
+  -e DATABASE_USERNAME=logo_user \
+  -e DATABASE_PASSWORD=your_password \
+  logo-api:native
+```
+
+### JVM Docker Image (Dockerfile.jvm)
+
+The JVM image provides faster build times and easier debugging capabilities.
+
+#### Build the JVM Image
+```bash
+# Build the JVM Docker image (includes build stage)
+docker build -f Dockerfile.jvm -t logo-api:jvm .
+```
+
+#### Run the JVM Image  
+```bash
+# Connect to external database (e.g., running via docker-compose)
+docker run --rm -p 8082:8082 \
+  -e PGHOST=host.docker.internal \
+  -e PGPORT=5433 \
+  -e PGDATABASE=logo_db \
+  -e DATABASE_USERNAME=logo_user \
+  -e DATABASE_PASSWORD=logo_password \
+  logo-api:jvm
+
+# Or connect to a remote database
+docker run --rm -p 8082:8082 \
+  -e PGHOST=your-db-host.com \
+  -e PGPORT=5432 \
+  -e PGDATABASE=logo_db \
+  -e DATABASE_USERNAME=logo_user \
+  -e DATABASE_PASSWORD=your_password \
+  logo-api:jvm
+```
+
+### Connecting to Local Database
+
+If you want to run just the database services and connect your Docker image to them:
+
+```bash
+# Start only the database services
+docker-compose up -d logo-api-postgresql logo-api-adminer
+
+# Then run your Docker image connecting to the local database
+# Native version
+docker run --rm -p 8080:8080 \
+  -e PGHOST=host.docker.internal \
+  -e PGPORT=5433 \
+  -e PGDATABASE=logo_db \
+  -e DATABASE_USERNAME=logo_user \
+  -e DATABASE_PASSWORD=logo_password \
+  logo-api:native
+
+# JVM version  
+docker run --rm -p 8082:8082 \
+  -e PGHOST=host.docker.internal \
+  -e PGPORT=5433 \
+  -e PGDATABASE=logo_db \
+  -e DATABASE_USERNAME=logo_user \
+  -e DATABASE_PASSWORD=logo_password \
+  logo-api:jvm
+```
+
+### Key Differences
+
+| Feature | Native (Dockerfile) | JVM (Dockerfile.jvm) |
+|---------|-------------------|---------------------|
+| **Build Time** | ~5-10 minutes | ~2-3 minutes |
+| **Startup Time** | <100ms | ~2-3 seconds |
+| **Memory Usage** | ~50-100MB | ~200-400MB |
+| **Port** | 8080 | 8082 |
+| **Debug Support** | Limited | Full Java debugging |
+| **Build Requirements** | GraalVM, more RAM | Standard JVM |
+
+### Environment Variables
+
+Both images support the same environment variables for database connection:
+
+```bash
+PGHOST=host.docker.internal           # Database host
+PGPORT=5433                          # Database port  
+PGDATABASE=logo_db                   # Database name
+DATABASE_USERNAME=logo_user          # Database user
+DATABASE_PASSWORD=logo_password      # Database password
+QUARKUS_PROFILE=prod                # Application profile
+DEV_SERVICES_ENABLED=false          # Disable Quarkus dev services
+```
+
 ## Production Deployment
 
 For production deployment:

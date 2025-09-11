@@ -6,11 +6,14 @@ import com.logo.domain.port.outgoing.LogoApiPort;
 import com.logo.domain.port.outgoing.LogoPersistencePort;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.jboss.logging.Logger;
 
 import java.time.OffsetDateTime;
 
 @ApplicationScoped
 public class GetLogoService implements GetLogoUseCase {
+
+    private static final Logger LOG = Logger.getLogger(GetLogoService.class);
 
     private final LogoPersistencePort logoPersistencePort;
     private final LogoApiPort logoApiPort;
@@ -25,8 +28,10 @@ public class GetLogoService implements GetLogoUseCase {
         return logoPersistencePort.get(identifier)
                 .flatMap(logo -> {
                     if (logo != null) {
+                        LOG.info("Returning pre-saved logo with identifier %s".formatted(identifier));
                         return Uni.createFrom().item((GetLogoUseCase.Result) new GetLogoUseCase.Result.Success(logo));
                     } else {
+                        LOG.info("Fetching, saving and returning logo with identifier %s".formatted(identifier));
                         return fetchAndSaveLogo(identifier)
                                 .map(savedLogo -> (GetLogoUseCase.Result) new GetLogoUseCase.Result.Success(savedLogo));
                     }
@@ -42,7 +47,7 @@ public class GetLogoService implements GetLogoUseCase {
                 .flatMap(logoData -> {
                     OffsetDateTime now = OffsetDateTime.now();
                     String logoUrl = String.format("https://img.logo.dev/ticker/%s", identifier);
-                    
+
                     Logo newLogo = new Logo(
                             identifier,
                             logoUrl,
@@ -52,7 +57,7 @@ public class GetLogoService implements GetLogoUseCase {
                             now,
                             now
                     );
-                    
+
                     return logoPersistencePort.save(newLogo);
                 });
     }
