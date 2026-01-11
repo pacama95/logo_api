@@ -15,7 +15,7 @@ services:
       - logo-api-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U logo_user -d logo_db"]
+      test: [ "CMD-SHELL", "pg_isready -U logo_user -d logo_db" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -24,7 +24,7 @@ services:
     image: adminer:4.8.1
     container_name: logo-api-adminer
     ports:
-      - "8083:8080"
+      - "8093:8080"
     environment:
       ADMINER_DEFAULT_SERVER: logo-api-postgresql
       ADMINER_DESIGN: pepa-linha

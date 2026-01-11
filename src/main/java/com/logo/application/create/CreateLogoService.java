@@ -7,7 +7,6 @@ import com.logo.domain.port.incoming.CreateLogoUseCase;
 import com.logo.domain.port.outgoing.LogoPersistencePort;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 import org.jboss.logging.Logger;
 
 import java.time.OffsetDateTime;
@@ -20,7 +19,6 @@ public class CreateLogoService implements CreateLogoUseCase {
 
     private final LogoPersistencePort logoPersistencePort;
 
-    @Inject
     public CreateLogoService(LogoPersistencePort logoPersistencePort) {
         this.logoPersistencePort = logoPersistencePort;
     }
